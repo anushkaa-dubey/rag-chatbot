@@ -1,29 +1,42 @@
-# 🧠 RAG Chatbot (Local Setup – Ollama Only)
+# RAG Chatbot (Local Ollama Setup)
 
-This project is a **RAG-based chatbot** built with:
+## Overview
 
-* Streamlit (UI)
-* LangChain
-* FAISS (Vector DB)
-* Ollama (Local LLM + Embeddings)
+This project implements a Retrieval-Augmented Generation (RAG) chatbot using:
 
-⚠️ This project uses **Ollama only** (no OpenAI API required).
+- Streamlit (UI)
+- LangChain (RAG pipeline)
+- FAISS (vector database)
+- Ollama (local LLM + embeddings)
+- pypdf (PDF parsing)
 
----
-
-# ✅ 1️⃣ Prerequisites
-
-* Python 3.10 or 3.11
-* Ollama installed
-* 8GB+ RAM recommended
+All inference runs locally using Ollama. No OpenAI API is required.
 
 ---
 
-# 🦙 2️⃣ Install Ollama
+## System Requirements
 
-Download and install:
+- Python 3.10 or 3.11
+- Ollama installed
+- 8 GB RAM recommended
+- Windows / macOS / Linux
 
-👉 [https://ollama.com/download](https://ollama.com/download)
+---
+
+## 1. Clone Repository
+
+```bash
+git clone <repository-url>
+cd RAG-CHATBOT
+```
+
+---
+
+## 2. Install Ollama
+
+Download from:
+
+https://ollama.com/download
 
 Verify installation:
 
@@ -33,36 +46,34 @@ ollama --version
 
 ---
 
-# 📥 3️⃣ Pull Required Models
+## 3. Pull Required Models
 
-For embeddings:
+Pull embedding model:
 
 ```bash
 ollama pull nomic-embed-text
 ```
 
-For LLM:
+Pull LLM model:
 
 ```bash
 ollama pull llama3
 ```
 
-(Replace model names if different in code.)
+If your code uses different model names, pull those instead.
 
 ---
 
-# 🐍 4️⃣ Setup Python Environment
+## 4. Create Virtual Environment
 
-From project root:
-
-### Windows
+### Windows (PowerShell)
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate
 ```
 
-### macOS/Linux
+### macOS / Linux
 
 ```bash
 python3 -m venv .venv
@@ -71,7 +82,7 @@ source .venv/bin/activate
 
 ---
 
-# 📦 5️⃣ Install Dependencies
+## 5. Install Dependencies
 
 ```bash
 pip install streamlit langchain langchain-community faiss-cpu python-dotenv pypdf
@@ -79,33 +90,41 @@ pip install streamlit langchain langchain-community faiss-cpu python-dotenv pypd
 
 ---
 
-# ▶ 6️⃣ Start Ollama Server
+## 6. Start Ollama Server
 
-Ollama must be running before launching the app.
+Ollama must be running before starting the application.
 
-Run:
+Option 1: Open the Ollama desktop application
+
+Option 2: Run in terminal
 
 ```bash
 ollama run llama3
 ```
 
-OR open the Ollama desktop app.
-
-Default server runs at:
+Ollama runs at:
 
 ```
 http://localhost:11434
 ```
 
+Verify server:
+
+```bash
+ollama list
+```
+
 ---
 
-# 🚀 7️⃣ Run The Application
+## 7. Run the Application
+
+From project root:
 
 ```bash
 streamlit run frontend.py
 ```
 
-Open:
+Open in browser:
 
 ```
 http://localhost:8501
@@ -113,16 +132,48 @@ http://localhost:8501
 
 ---
 
-# ⚠️ Common Error
-
-### Error:
+## Project Structure
 
 ```
-Connection refused on localhost:11434
+RAG-CHATBOT/
+│
+├── frontend.py
+├── rag_pipeline.py
+├── vector_database.py
+├── pdfs/
+├── vectorstore/
+└── .venv/
 ```
-
-### Fix:
-
-Ollama is not running. Start it first.
 
 ---
+
+## Troubleshooting
+
+### Connection Refused (localhost:11434)
+
+Cause:
+Ollama is not running.
+
+Solution:
+Start Ollama before running Streamlit.
+
+---
+
+### Model Not Found
+
+Cause:
+Required model not pulled.
+
+Solution:
+
+```bash
+ollama pull <model-name>
+```
+
+---
+
+## Notes
+
+- All embeddings and LLM inference run locally.
+- No external API keys required.
+- First run may take longer due to model loadi
