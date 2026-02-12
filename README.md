@@ -171,8 +171,3 @@ git commit -m "Add README with setup instructions"
 git push
 ````
 
-If you want, next I can:
-
-* Generate `requirements.txt`
-* Clean RAG architecture (PDF → FAISS → Query)
-* Make this **SIH / hackathon submission ready** 💪
