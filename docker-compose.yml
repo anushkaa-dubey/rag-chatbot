@@ -1,0 +1,63 @@
+version: "3.9"
+
+services:
+  # ── FastAPI Backend ─────────────────────────────────────────
+  api:
+    build: .
+    container_name: rag_api
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - FAISS_DB_PATH=/data/db_faiss
+      - PDFS_DIR=/data/pdfs
+      - LOG_FILE=/data/logs/rag_app.log
+    volumes:
+      - rag_data:/data
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/api/v1/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── Ollama Embedding Service ─────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: rag_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ── Streamlit Frontend ───────────────────────────────────────
+  frontend:
+    image: python:3.11-slim
+    container_name: rag_frontend
+    working_dir: /app
+    command: >
+      sh -c "pip install streamlit requests && streamlit run frontend.py --server.port 8501 --server.address 0.0.0.0"
+    ports:
+      - "8501:8501"
+    environment:
+      - API_BASE=http://api:8000/api/v1
+    volumes:
+      - ./frontend.py:/app/frontend.py
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  rag_data:
+  ollama_models:

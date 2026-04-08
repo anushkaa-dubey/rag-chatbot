@@ -1,7 +1,46 @@
-venv/
-.venv
+# Byte-compiled / optimized / DLL files
 __pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Environment variables
 .env
+.env.*
+
+# FAISS vector store (can be rebuilt from PDFs)
 vectorstore/
-*.faiss
-*.db
+
+# Uploaded PDFs
+pdfs/
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Docker
+*.tar
