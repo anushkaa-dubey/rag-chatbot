@@ -1,102 +1,212 @@
-```md
-# RAG Chatbot (Groq + Ollama + FAISS)
+# RAG Legal Assistant
 
-This project is a **Retrieval-Augmented Generation (RAG) chatbot** built using:
-- **Groq API** for fast LLM inference
-- **Ollama** for local embeddings
-- **FAISS** as the vector database
-- **Streamlit** for the frontend UI
+Production-oriented Retrieval-Augmented Generation (RAG) system for legal document understanding using FastAPI, FAISS, Ollama embeddings, and Groq LLMs.
+
+The application allows users to upload legal PDFs and ask questions in natural language. The system performs semantic retrieval over uploaded documents and generates grounded answers with source attribution and confidence scoring.
 
 ---
 
-## 📁 Project Structure
+## Features
+
+- PDF document ingestion
+- Semantic search using vector embeddings
+- Conversational RAG pipeline
+- FastAPI backend with Swagger documentation
+- FAISS vector database
+- Ollama local embeddings
+- Groq LLM integration
+- Multi-turn conversation memory
+- Confidence scoring
+- Source attribution
+- Duplicate document detection
+- Evaluation pipeline for retrieval testing
+- Docker-ready architecture
+
+---
+
+## Architecture
+
+```text
+User Query
+    ↓
+FastAPI API Layer
+    ↓
+Retrieval Service
+    ↓
+FAISS Vector Search
+    ↓
+Relevant Chunks Retrieved
+    ↓
+Groq LLM Generation
+    ↓
+Grounded Response Returned
 ```
 
-RAG-CHATBOT/
+---
+
+## Tech Stack
+
+### Backend
+- FastAPI
+- Python
+
+### AI / NLP
+- LangChain
+- Groq
+- Ollama
+- FAISS
+
+### Document Processing
+- PDFPlumber
+- RecursiveCharacterTextSplitter
+
+### Infrastructure
+- Docker
+- Uvicorn
+
+---
+
+## Project Structure
+
+```text
+app/
 │
-├── frontend.py          # Streamlit UI
-├── rag_pipeline.py      # RAG logic (retrieval + LLM)
-├── vector_database.py   # PDF loading, chunking, FAISS
-├── pdfs/                # Uploaded PDFs
-├── .env                 # API keys (ignored by git)
-├── .gitignore
-└── README.md
+├── api.py
+├── config.py
+├── ingestion.py
+├── retrieval.py
+├── generation.py
+├── evaluation.py
+├── logger.py
+│
+vectorstore/
+pdfs/
 
-````
-
----
-
-## ⚙️ Prerequisites
-- Python **3.10+**
-- Git
-- Internet connection (for Groq API)
-- Ollama installed locally
+run_api.py
+requirements.txt
+README.md
+```
 
 ---
 
-## 🛠️ Setup Instructions
+## RAG Pipeline
 
-### 1️⃣ Clone the repository
+### 1. Document Ingestion
+- PDF uploaded through API
+- PDF text extracted
+- Documents split into semantic chunks
+
+### 2. Embedding Generation
+- Ollama generates vector embeddings
+- Embeddings stored in FAISS vector database
+
+### 3. Retrieval
+- User query converted into vector representation
+- Top relevant chunks retrieved using semantic similarity
+
+### 4. Generation
+- Retrieved context passed to Groq LLM
+- Grounded response generated with citations
+
+---
+
+## Why This Architecture?
+
+The system is designed with modular separation between:
+- ingestion
+- retrieval
+- generation
+- API layer
+
+This allows:
+- easier scaling
+- independent component upgrades
+- production deployment flexibility
+- easier debugging and testing
+
+---
+
+## API Endpoints
+
+### Health Check
+
+```http
+GET /api/v1/health
+```
+
+### Upload Document
+
+```http
+POST /api/v1/ingest
+```
+
+### Query Documents
+
+```http
+POST /api/v1/query
+```
+
+### List Documents
+
+```http
+GET /api/v1/documents
+```
+
+### Clear Session
+
+```http
+DELETE /api/v1/session/{session_id}
+```
+
+---
+
+## Installation
+
+### 1. Clone Repository
+
 ```bash
 git clone https://github.com/anushkaa-dubey/rag-chatbot.git
 cd rag-chatbot
-````
+```
 
 ---
 
-### 2️⃣ Create and activate virtual environment (recommended)
+### 2. Create Virtual Environment
+
+#### Windows
 
 ```bash
 python -m venv .venv
-```
-
-**Windows**
-
-```bash
 .venv\Scripts\activate
 ```
 
-**Mac/Linux**
+#### Linux / Mac
 
 ```bash
+python3 -m venv .venv
 source .venv/bin/activate
 ```
 
 ---
 
-### 3️⃣ Install dependencies
+### 3. Install Dependencies
 
 ```bash
-pip install streamlit langchain langchain-groq langchain-community langchain-ollama faiss-cpu python-dotenv pdfplumber
+pip install -r requirements.txt
 ```
 
 ---
 
-## 🔑 Environment Variables
-
-Create a `.env` file in the project root:
-
-```env
-GROQ_API_KEY="your_groq_api_key_here"
-```
-
-⚠️ `.env` is ignored by git for security reasons.
-
----
-
-## 🤖 Ollama Setup (Local Embeddings)
+## Ollama Setup
 
 ### Install Ollama
 
-Download from 👉 [https://ollama.com](https://ollama.com)
+Download:
+https://ollama.com/download
 
-### Start Ollama server
+---
 
-```bash
-ollama serve
-```
-
-### Pull embedding model
+### Pull Embedding Model
 
 ```bash
 ollama pull deepseek-r1:1.5b
@@ -104,70 +214,145 @@ ollama pull deepseek-r1:1.5b
 
 ---
 
-## ▶️ Run the Application
-
-Open a **new terminal** (with venv activated):
+### Start Ollama Server
 
 ```bash
-python -m streamlit run frontend.py
+ollama serve
 ```
 
-Then open in browser:
+Default Ollama endpoint:
 
+```text
+http://localhost:11434
 ```
-http://localhost:8501
+
+---
+
+## Environment Variables
+
+Create a `.env` file:
+
+```env
+GROQ_API_KEY=your_groq_api_key
+
+LLM_MODEL=llama-3.3-70b-versatile
+
+OLLAMA_MODEL=deepseek-r1:1.5b
+OLLAMA_BASE_URL=http://localhost:11434
 ```
 
 ---
 
-## 🧠 How the RAG Pipeline Works
+## Running the Project
 
-1. User uploads a PDF
-2. PDF is split into chunks
-3. Chunks are embedded **locally using Ollama**
-4. Embeddings are stored in **FAISS**
-5. User query retrieves relevant chunks
-6. Context + query sent to **Groq LLM**
-7. Answer displayed in Streamlit UI
+### Start FastAPI Server
 
----
-
-## ⚠️ Important Notes
-
-* FAISS index is static unless rebuilt after a new PDF upload
-* Groq is used **only for generation**, not embeddings
-* Ollama must be running before querying
-* API keys should never be hardcoded
-
----
-
-## 🚀 Future Improvements
-
-* Rebuild FAISS index on every PDF upload
-* Multi-PDF support
-* Source citations in answers
-* Better prompt tuning
-
----
-
-## 👩‍💻 Author
-
-**Anushkaa Dubey**
-
----
-
-## 📜 License
-
-This project is for educational and hackathon purposes only.
-
-````
-
----
-
-### ✅ Final step (don’t forget)
 ```bash
-git add README.md
-git commit -m "Add README with setup instructions"
-git push
-````
+python run_api.py
+```
 
+Server:
+```text
+http://localhost:8000
+```
+
+Swagger Docs:
+```text
+http://localhost:8000/docs
+```
+
+---
+
+## Example Query Request
+
+```json
+{
+  "question": "Can someone be arrested unfairly?",
+  "top_k": 5
+}
+```
+
+---
+
+## Example Response
+
+```json
+{
+  "answer": "According to the uploaded legal documents...",
+  "confidence": "Medium",
+  "sources": [],
+  "latency_ms": 1240.2,
+  "model": "llama-3.3-70b-versatile"
+}
+```
+
+---
+
+## Evaluation Pipeline
+
+The project includes an offline evaluation module for:
+- retrieval hit rate
+- mean reciprocal rank (MRR)
+- latency measurement
+
+Run:
+
+```bash
+python -m app.evaluation
+```
+
+---
+
+## Current Limitations
+
+- Single-machine FAISS deployment
+- In-memory session storage
+- No user-level document isolation
+- Local Ollama dependency
+- Basic retrieval strategy
+
+---
+
+## Production Improvements
+
+Potential production improvements:
+- Redis session storage
+- Pinecone / Qdrant vector database
+- Hybrid search
+- Reranking models
+- Kubernetes deployment
+- Async ingestion pipelines
+- Multi-tenant document isolation
+- AWS CloudWatch monitoring
+
+---
+
+## Future Enhancements
+
+- Graph RAG
+- Multi-agent workflows
+- Legal citation extraction
+- Multilingual legal support
+- OCR support for scanned PDFs
+- Streaming responses
+- Fine-grained access control
+
+---
+
+## Key Learnings
+
+This project helped explore:
+- Retrieval-Augmented Generation (RAG)
+- semantic search
+- embeddings
+- vector databases
+- conversational memory
+- FastAPI backend architecture
+- modular AI system design
+- production-oriented API development
+
+---
+
+## License
+
+MIT License
